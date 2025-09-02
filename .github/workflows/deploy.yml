@@ -38,7 +38,7 @@ jobs:
           script: |
             echo "🚀 Starting deployment to VPS..."
 
-            cd /var/www/html/saifalikhan/saif-ali-khan-server || exit
+            cd /var/www/html/saifalikhan/api || exit
 
             if ! command -v git &> /dev/null; then
               echo "❌ Git is not installed. Please install Git."
