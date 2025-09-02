@@ -1,4 +1,4 @@
-name: Node.js Deployment with NGINX and PM2
+name: Node.js Deployment with NGINX and SSL
 
 on:
   push:
@@ -9,15 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Install SSH client
       - name: Install SSH Client
         run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-      # 3️⃣ Test SSH connection
       - name: Test SSH Connection
         uses: appleboy/ssh-action@master
         with:
@@ -31,8 +28,7 @@ jobs:
             hostname
             ls -la /var/www/html
 
-      # 4️⃣ Deploy to VPS
-      - name: Deploy to VPS
+      - name: Deploy to VPS using SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -42,24 +38,11 @@ jobs:
           script: |
             echo "🚀 Starting deployment to VPS..."
 
-            # Navigate to project directory
             cd /var/www/html/saifalikhan/api || exit
-
-            # Check if Git is installed
-            if ! command -v git &> /dev/null; then
-              echo "❌ Git is not installed. Please install Git."
-              exit 1
-            fi
 
             echo "📦 Fetching latest code from GitHub..."
             git fetch --all
             git reset --hard origin/main
-
-            echo "⚙️ Setting up environment variables..."
-            if [ ! -f .env ]; then
-              echo ".env file not found. Copying from .env.example..."
-              cp .env.example .env
-            fi
 
             echo "📥 Installing dependencies..."
             npm install --legacy-peer-deps
@@ -67,7 +50,6 @@ jobs:
             echo "🔨 Building Next.js application..."
             npm run build
 
-            # Restart or start PM2 process
             if command -v pm2 &> /dev/null; then
               echo "♻️ Restarting application using PM2..."
               pm2 restart api-saifalikhan || pm2 start npm --name "api-saifalikhan" -- run start
@@ -76,7 +58,7 @@ jobs:
               exit 1
             fi
 
-            # Restart Nginx
-            systemctl restart nginx && echo "✅ NGINX restarted successfully." || (echo "❌ Failed to restart NGINX." && exit 1)
+            echo "🔧 Restarting NGINX..."
+            sudo systemctl restart nginx
 
             echo "🎉 Deployment completed successfully!"
