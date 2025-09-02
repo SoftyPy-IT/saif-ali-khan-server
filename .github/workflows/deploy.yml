@@ -28,10 +28,11 @@ jobs:
             # Navigate to the project directory
             cd /var/www/html/saifalikhan/saif-ali-khan-server || exit
 
-            # Ensure Git is available
+            # Ensure Git is installed
             if ! command -v git &> /dev/null; then
-              echo "Git is not installed. Please install Git."
-              exit 1
+              echo "Git is not installed. Installing..."
+              sudo apt-get update
+              sudo apt-get install -y git
             fi
 
             echo "Fetching latest code from GitHub..."
@@ -50,21 +51,14 @@ jobs:
             echo "Building Next.js application..."
             npm run build
 
-            # Restart application using PM2
-            if command -v pm2 &> /dev/null; then
-              echo "Restarting application using PM2..."
-              pm2 restart saif-server || pm2 start npm --name "saif-server" -- run start
-            else
-              echo "PM2 not found. Please install it using 'npm install -g pm2'."
-              exit 1
-            fi
+            echo "Restarting application using PM2 on port 9003..."
+            export PORT=9003
+            pm2 restart saif-server || pm2 start npm --name "saif-server" -- run start
 
-            # Restart NGINX to apply changes
-            if sudo systemctl restart nginx; then
-              echo "NGINX restarted successfully."
-            else
-              echo "Failed to restart NGINX. Check for issues using 'sudo systemctl status nginx'."
-              exit 1
-            fi
+            echo "Saving PM2 process list..."
+            pm2 save
+
+            echo "Reloading NGINX..."
+            sudo systemctl reload nginx
 
             echo "Deployment completed successfully!"
