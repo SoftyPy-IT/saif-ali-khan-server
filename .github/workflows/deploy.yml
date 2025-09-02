@@ -9,12 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Install SSH client
       - name: Install SSH Client
         run: sudo apt-get update && sudo apt-get install -y openssh-client
 
+      # 3️⃣ Test SSH connection
       - name: Test SSH Connection
         uses: appleboy/ssh-action@master
         with:
@@ -28,6 +31,7 @@ jobs:
             hostname
             ls -la /var/www/html
 
+      # 4️⃣ Deploy to VPS
       - name: Deploy to VPS using SSH
         uses: appleboy/ssh-action@master
         with:
@@ -38,8 +42,10 @@ jobs:
           script: |
             echo "🚀 Starting deployment to VPS..."
 
+            # Navigate to project directory
             cd /var/www/html/saifalikhan/api || exit
 
+            # Check if Git is installed
             if ! command -v git &> /dev/null; then
               echo "❌ Git is not installed. Please install Git."
               exit 1
@@ -61,19 +67,16 @@ jobs:
             echo "🔨 Building Next.js application..."
             npm run build
 
+            # Restart or start PM2 process
             if command -v pm2 &> /dev/null; then
               echo "♻️ Restarting application using PM2..."
-              pm2 restart  api-saifalikhan || pm2 start npm --name " api-saifalikhan" -- run start
+              pm2 restart api-saifalikhan || pm2 start npm --name "api-saifalikhan" -- run start
             else
               echo "❌ PM2 not found. Please install it using 'npm install -g pm2'."
               exit 1
             fi
 
-            if sudo systemctl restart nginx; then
-              echo "✅ NGINX restarted successfully."
-            else
-              echo "❌ Failed to restart NGINX. Run 'sudo systemctl status nginx' for details."
-              exit 1
-            fi
+            # Restart Nginx
+            systemctl restart nginx && echo "✅ NGINX restarted successfully." || (echo "❌ Failed to restart NGINX." && exit 1)
 
             echo "🎉 Deployment completed successfully!"
