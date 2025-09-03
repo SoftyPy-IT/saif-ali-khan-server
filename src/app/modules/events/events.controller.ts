@@ -10,7 +10,7 @@ const createEvent = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'Event created successfully',
+    message: 'Event created successfully!',
     data: result,
   });
 });
