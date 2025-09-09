@@ -6,6 +6,7 @@ const createVideoValidationSchema = z.object({
   }),
 });
 
+// video
 export const videoValidation = {
   createVideoValidationSchema,
 };

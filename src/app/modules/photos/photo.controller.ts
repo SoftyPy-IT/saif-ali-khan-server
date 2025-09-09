@@ -5,8 +5,9 @@ import { PhotoServices } from './photo.service';
 
 const createPhoto = catchAsync(async (req, res) => {
   const payload = req.body;
-  const file = req.file;
-  const result = await PhotoServices.createPhotoIntoDB(payload, file);
+  const files = req.files as Express.Multer.File[];
+  const result = await PhotoServices.createPhotoIntoDB(payload, files);
+
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,

@@ -16,7 +16,8 @@ const BannerSchema = new Schema<TBanner>(
   {
     name: { type: String, required: true },
     designation: { type: String, required: true },
-    videoUrl: { type: String, required: true },
+    partyname: { type: String, required: true },
+    image: { type: String, required: true },
   },
   {
     timestamps: true,
@@ -54,7 +55,7 @@ const WhoWeAreSchema = new Schema<TWhoWeAre>(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    videoUrl: { type: String, required: true },
+    videourl: { type: String, required: true },
   },
   {
     timestamps: true,

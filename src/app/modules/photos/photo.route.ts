@@ -8,7 +8,7 @@ import { upload } from '../../utils/sendImageToCloudinary';
 const router = express.Router();
 router.post(
   '/create-photo',
-  upload.single('file'),
+  upload.array('file'), // ← accepts multiple files
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
     next();
@@ -16,6 +16,7 @@ router.post(
   validationRequest(photoValidation.createPhotoValidationSchema),
   PhotoControllers.createPhoto,
 );
+
 router.get('/', PhotoControllers.getAllPhotos);
 router.get('/:id', PhotoControllers.getSinglePhoto);
 router.delete('/:id', PhotoControllers.deletePhoto);

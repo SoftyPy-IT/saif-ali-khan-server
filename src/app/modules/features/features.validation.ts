@@ -12,7 +12,7 @@ const BannerValidationSchema = z
         invalid_type_error: 'Banner description must be a string',
       })
       .optional(),
-    videoUrl: z
+    image: z
       .string({
         invalid_type_error: 'bgImageUrl must be a valid string',
       })
@@ -62,7 +62,7 @@ const WhoWeAreValidationSchema = z
         invalid_type_error: 'Description must be a string',
       })
       .optional(),
-    videoUrl: z
+    videourl: z
       .string({
         invalid_type_error: 'Video URL must be a valid string',
       })

@@ -1,26 +1,61 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import QueryBuilder from '../../builders/QueryBuilder';
+// import QueryBuilder from '../../builders/QueryBuilder';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import { TPhoto } from './photo.interface';
 import { Photo } from './photo.model';
 
-const createPhotoIntoDB = async (payload: TPhoto, file: any) => {
-  const name = `${payload?.folder}-${Date.now()}`;
-  const path = file?.path;
+const createPhotoIntoDB = async (
+  payload: TPhoto,
+  files: Express.Multer.File[],
+) => {
+  const results = [];
 
-  const { secure_url } = await sendImageToCloudinary(name, path);
-  payload.imageUrl = secure_url;
-  const result = await Photo.create(payload);
-  return result;
+  for (const file of files) {
+    const name = `${payload?.folder}-${Date.now()}`;
+    const path = file.path;
+
+    const { secure_url } = await sendImageToCloudinary(name, path);
+    const photoPayload = {
+      folder: payload.folder,
+      imageUrl: secure_url,
+    };
+    const result = await Photo.create(photoPayload);
+    results.push(result);
+  }
+
+  return results;
 };
 
+// In PhotoServices.getAllPhotoFromDB
 const getAllPhotoFromDB = async (query: Record<string, unknown>) => {
-  const { folder } = query;
-  const PhotoQuery = new QueryBuilder(Photo.find(), query).filter().paginate();
-  const data = await PhotoQuery.modelQuery;
+  const { folder, sort } = query;
+  
+  // Build base query
+  let baseQuery = Photo.find();
+  
+  // Apply folder filter if provided
+  if (folder) {
+    baseQuery = baseQuery.where('folder').equals(folder);
+  }
+  
+  // Apply sorting if provided, otherwise default to createdAt descending
+  if (sort) {
+    baseQuery = baseQuery.sort(sort as string);
+  } else {
+    baseQuery = baseQuery.sort({ createdAt: -1 });
+  }
+  
+  // Apply pagination
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+  
+  baseQuery = baseQuery.skip(skip).limit(limit);
+  
+  const data = await baseQuery.exec();
   const totalCount = await Photo.countDocuments(folder ? { folder } : {});
-  const result = { data, totalCount };
-  return result;
+  
+  return { data, totalCount };
 };
 
 const getSinglePhotoFromDB = async (id: string) => {

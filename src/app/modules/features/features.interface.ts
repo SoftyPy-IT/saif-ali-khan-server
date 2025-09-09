@@ -1,9 +1,11 @@
 export type TBanner = {
   name: string;
   designation: string;
-  videoUrl: string;
+  partyname: string;
+  image: string;
   updatedAt: string;
 };
+// interface
 export type TConcernIssues = {
   issue1: string;
   issue2: string;
@@ -21,7 +23,7 @@ export type TOurConcernIssue = {
 export type TWhoWeAre = {
   title: string;
   description: string;
-  videoUrl: string;
+  videourl: string;
 };
 export type TElectionCampaign = {
   title: string;
