@@ -20,7 +20,7 @@ app.use(
         config.CORS_ORIGIN_CLIENT,
        "http://localhost:3000",
        "http://localhost:3001",
-       'https://admin.saifalikhan.info/'
+       'https://admin.saifalikhan.info'
       ];
 
       if (!origin || allowedOrigins.includes(origin)) {
